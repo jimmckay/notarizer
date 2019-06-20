@@ -30,6 +30,10 @@ function usage() {
 	echo "   An optional cerificate for signing before notarization"
 	echo " -n, --notify"
 	echo "   If present, a dialog will be displayed on completion"
+	echo " -h, --help"
+	echo "   Show this message and exit"
+	echo " -v, --version"
+	echo "   Print version information and exit"
 	exit 0
 }
 
