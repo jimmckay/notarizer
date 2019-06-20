@@ -17,7 +17,11 @@ Options:
    An optional cerificate for codesigning before notarization
 - **-n, --notify**
    If present, a dialog will be displayed on completion
-   
+- **-h, --help**
+   Show this message and exit
+- **-v, --version**
+   Print version information and exit
+
    Written by Jim McKay 
    Copyright 2019
    
