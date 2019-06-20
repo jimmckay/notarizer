@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# Create a read-only disk image of the contents of a folder
+
+set -e;
+
+function pure_version() {
+	echo '1.0.0.0'
+}
+
+function version() {
+	echo "notarizer $(pure_version)"
+}
+
+function usage() {
+	version
+	echo "Notarize a DMG or APP."
+	echo ""
+	echo "Usage: $(basename $0) -u username -p password [options] file"
+	echo "file will be uploaded to Apple's notary service and stapled on success."
+	echo ""
+	echo "Options:"
+	echo " -u, --username username (required)"
+	echo "   The username associated with your developer account"
+	echo " -p, --password password (required)"
+	echo "   The password for the username. Can use @keychain:ITEM to access password stored in login keychain with service name ITEM"
+	echo " -i, --itc-provider itc_provider_id"
+	echo "   The developer shortname to use (usually your App Store Connect id without spaces or '|'s)"
+	echo " -s, --sign cerificatename"
+	echo "   An optional cerificate for signing before notarization"
+	echo " -n, --notify"
+	echo "   If present, a dialog will be displayed on completion"
+	exit 0
+}
+
+USERNAME=""
+PASSWORD=""
+BUNDLE_ID=$(uuidgen)
+
+while test "${1:0:1}" = "-"; do
+	case $1 in
+	-h | --help)
+		usage;;
+	-v | --version)
+		version; exit 0;;
+	-u | --username)
+		USERNAME="$2"
+		shift; shift;;
+	-p | --password)
+		PASSWORD="$2"
+		shift; shift;;
+	-i | --itc-provider)
+		ITC_STRING=" -itc_provider $2"
+		shift; shift;;
+	-s | --sign)
+		CERIFICATE="$2"
+		shift; shift;;
+	-n | --notify)
+		NOTIFY=1
+		shift;;
+	-*)
+		echo "Unknown option $1. Run with --help for help."
+		exit 1;;
+	esac
+done
+
+test -z "$1" && {
+	echo "Not enough arguments. Invoke with --help for help."
+	exit 1
+}
+
+FILE_PATH="$1"
+
+if ! test -z "$CERTIFICATE"; then
+	echo "Codesigning ${FILE_PATH}"
+	codesign --options runtime -s "${CERTIFICATE}" "${FILE_PATH}"
+	codesign -vvv "${FILE_PATH}"
+fi
+
+echo "Uploading to notarization service (this could take some time)"
+
+UPLOAD_RESPONSE=$(xcrun altool --notarize-app --primary-bundle-id "${BUNDLE_ID}" --username "${USERNAME}" --password "${PASSWORD}" --file "${FILE_PATH}"${ITC_STRING} 2>&1)
+echo "$UPLOAD_RESPONSE"
+
+REQ_UUID=$(echo "$UPLOAD_RESPONSE" | awk '/RequestUUID/{print $3}')
+
+if test -z "$REQ_UUID"; then
+	echo "Upload failed"
+	exit 1
+else
+	echo "Got RequestUUID ${REQ_UUID}"
+fi
+
+while true; do
+	PROGRESS=$(xcrun altool --notarization-info "${REQ_UUID}"  --username "${USERNAME}" --password "${PASSWORD}"${ITC_STRING} 2>&1 | grep Status: | awk '{print $2}')
+	echo "${PROGRESS}"
+
+	case $PROGRESS in
+		
+		success)
+			echo "Notarize complete. Stapling"
+			xcrun stapler staple -v "${FILE_PATH}"
+			if [ $NOTIFY == 1 ]; then
+				osascript -e 'display dialog "Notarization and Stapling Succeeded! ${FILE_PATH}" buttons {"OK"} default button 1 with title "File Notarized and Stapled"'
+			fi
+			break
+			;;			
+		in)  #in progress
+			echo "Waiting..."
+			;;
+		*)
+			echo "An error occurred during Notarization. Status=${PROGRESS}"
+			exit 1
+			;;
+	esac
+	sleep 15
+done
+
+
+echo "Finished"
+exit 0
