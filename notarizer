@@ -14,7 +14,7 @@ function version() {
 
 function usage() {
 	version
-	echo "Notarize a DMG or APP."
+	echo "Notarize and Staple a Mac App in a Zip Archive, Installer Package or DMG."
 	echo ""
 	echo "Usage:"
 	echo "$(basename $0) -u username -p password [options] file"
@@ -24,10 +24,13 @@ function usage() {
 	echo "Options:"
 	echo " -u, --username username (required)"
 	echo "   The username associated with your developer account"
-	echo " -p, --password password (required)"
-	echo "   The password for the username. Can use @keychain:ITEM to access password stored in login keychain with service name ITEM"
+	echo " -p, --password password"
+	echo "   The password for the given username. You can use, for eample, @keychain:Notarizer to access a password stored in the login keychain with service name Notarizer."
+	echo "   See https://support.apple.com/en-us/HT204397 for more info"
 	echo " -i, --itc-provider itc_provider_id"
 	echo "   The developer shortname to use (usually your App Store Connect id without spaces or '|'s)"
+	echo "   Only required if you are a member of multiple Teams."
+	echo "   See --get-providers for help finding your team shortname."
 	echo " -s, --sign cerificatename"
 	echo "   An optional cerificate for signing before notarization"
 	echo " -n, --notify"
@@ -41,33 +44,35 @@ function usage() {
 	exit 0
 }
 
-USERNAME=""
-PASSWORD=""
-BUNDLE_ID=$(uuidgen)
+username=""
+password=""
+itc_string=""
+providers=0
+notify=0
 
 while test "${1:0:1}" = "-"; do
 	case $1 in
 	-h | --help)
-		usage;;
+		usage; exit 0;;
 	-v | --version)
 		version; exit 0;;
 	-u | --username)
-		USERNAME="$2"
+		username="$2"
 		shift; shift;;
 	-p | --password)
-		PASSWORD="$2"
+		password="$2"
 		shift; shift;;
 	-i | --itc-provider)
-		ITC_STRING=" -itc_provider $2"
+		itc_string=" -itc_provider $2"
 		shift; shift;;
 	-s | --sign)
-		CERIFICATE="$2"
+		certificate="$2"
 		shift; shift;;
 	-n | --notify)
-		NOTIFY=1
+		notify=1
 		shift;;
 	--get-providers)
-		PROVIDERS=1
+		providers=1
 		shift;;
 	-*)
 		echo "Unknown option $1. Run with --help for help."
@@ -75,9 +80,9 @@ while test "${1:0:1}" = "-"; do
 	esac
 done
 
-if [ $PROVIDERS == 1 ]; then
+if [ $providers == 1 ]; then
 	echo "getting providers. Enter your app-specific password when prompted."
-	"$(xcode-select -p)"/../Applications/Application\ Loader.app/Contents/itms/bin/iTMSTransporter -v off -m provider -u ${USERNAME} -p
+	"$(xcode-select -p)"/../Applications/Application\ Loader.app/Contents/itms/bin/iTMSTransporter -v off -m provider -u ${username} -p
 	exit 0
 fi
 
@@ -86,53 +91,71 @@ test -z "$1" && {
 	exit 1
 }
 
-FILE_PATH="$1"
+file_path="$1"
 
-if ! test -z "$CERTIFICATE"; then
-	echo "Codesigning ${FILE_PATH}"
-	codesign --options runtime -s "${CERTIFICATE}" "${FILE_PATH}"
-	codesign -vvv "${FILE_PATH}"
+if ! test -z "$certificate"; then
+	echo "Codesigning ${file_path}"
+	codesign --options runtime -s "${certificate}" "${file_path}"
+	codesign -vvv "${file_path}"
 fi
 
 echo "Uploading to notarization service (this could take some time)"
 
-UPLOAD_RESPONSE=$(xcrun altool --notarize-app --primary-bundle-id "${BUNDLE_ID}" --username "${USERNAME}" --password "${PASSWORD}" --file "${FILE_PATH}"${ITC_STRING} 2>&1)
-echo "$UPLOAD_RESPONSE"
+if test -z "$password"; then
+	echo -n "Password for ${username}: "
+	read -s password
+	echo
+fi
 
-REQ_UUID=$(echo "$UPLOAD_RESPONSE" | awk '/RequestUUID/{print $3}')
+bundle_id=$(uuidgen)
 
-if test -z "$REQ_UUID"; then
+upload_response=$(xcrun altool --notarize-app --primary-bundle-id "${bundle_id}" --username "${username}" --password "${password}" --file "${file_path}"${itc_string} 2>&1)
+#echo "${upload_response}"
+
+req_uuid=$(echo "${upload_response}" | awk '/RequestUUID/{print $3}')
+
+if test -z "$req_uuid"; then
 	echo "Upload failed"
 	exit 1
 else
-	echo "Got RequestUUID ${REQ_UUID}"
+	echo "Got RequestUUID ${req_uuid}"
 fi
 
-while true; do
-	PROGRESS=$(xcrun altool --notarization-info "${REQ_UUID}"  --username "${USERNAME}" --password "${PASSWORD}"${ITC_STRING} 2>&1 | grep Status: | awk '{print $2}')
-	echo "${PROGRESS}"
+	echo -n "Waiting..."
 
-	case $PROGRESS in
+while true; do
+	progress=$(xcrun altool --notarization-info "${req_uuid}"  --username "${username}" --password "${password}"${itc_string} 2>&1 | grep Status: | awk '{print $2}')
+	case $progress in
 		
 		success)
+			echo ""
 			echo "Notarize complete. Stapling"
-			xcrun stapler staple -v "${FILE_PATH}"
-			if [ $NOTIFY == 1 ]; then
-				osascript -e 'display dialog "Notarization and Stapling Succeeded! ${FILE_PATH}" buttons {"OK"} default button 1 with title "File Notarized and Stapled"'
+			xcrun stapler staple -q "${file_path}"
+			if xcrun stapler validate -q "${file_path}"; then
+				echo "Staple succeeded"
+				if [ $notify == 1 ]; then
+					osascript -e "display dialog \"${file_path} Notarized and Stapled Successfully!\" buttons {\"OK\"} default button 1 with title \"File Notarized and Stapled\""
+				fi
+			else
+				if [ $notify == 1 ]; then
+					osascript -e "display dialog \"An Error occurred stapling and validating.\" buttons {\"OK\"} default button 1 with title \"Error\""
+				fi
+				xcrun stapler validate -v "${file_path}" #To hopefully find out what went wrong
 			fi
 			break
 			;;			
 		in)  #in progress
-			echo "Waiting..."
+			echo -n "..."
 			;;
 		*)
-			echo "An error occurred during Notarization. Status=${PROGRESS}"
+			echo ""
+			echo "An error occurred during Notarization. Status=${progress}"
 			exit 1
 			;;
 	esac
 	sleep 15
 done
 
-
+echo ""
 echo "Finished"
 exit 0
