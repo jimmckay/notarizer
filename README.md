@@ -1,8 +1,11 @@
 # notarizer
 
-#### Notarize and Staple App or DMG
+**Notarize and Staple App or DMG**
 
-**Usage:**  
+#### Installation
+Download the [latest version](https://github.com/jimmckay/notarizer/archive/master.zip) and place notarizer in your **$PATH**
+
+#### Usage:
   **notarizer -u username -p password [options] FILE**  
   **notarizer --get-providers -u username**  
 
@@ -32,4 +35,5 @@ Options:
    Copyright 2019  
    
    With some ideas from [Thom McGrath's Code](https://github.com/thommcgrath/Beacon/blob/master/Installers/Mac/Build.sh "Thom McGrath's Code")
+
 
