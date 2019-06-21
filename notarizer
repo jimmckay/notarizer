@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Create a read-only disk image of the contents of a folder
+# Upload a file to Apple's Notary service and staple upon success.
 
 set -e;
 
