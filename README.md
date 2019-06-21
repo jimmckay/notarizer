@@ -20,6 +20,7 @@ Options:
    See [App-Specific Passwords](https://support.apple.com/en-us/HT204397) for help.
 - **-i, --itc-provider** [itc_provider_id]  
    The developer shortname to use (usually your App Store Connect id without spaces or '|'s)  
+   Only required if you are a member of multiple Teams.  
    See --get-providers for help finding your team shortname.
 - **-s, --sign** [cerificatename]  
    An optional cerificate for codesigning before notarization
