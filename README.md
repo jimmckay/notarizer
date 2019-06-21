@@ -1,6 +1,6 @@
-# notarizer
+# Notarizer
 
-**Notarize and Staple App or DMG**
+**Notarize and Staple App in a zip archive or DMG**
 
 #### Installation
 Download the [latest version](https://github.com/jimmckay/notarizer/archive/master.zip) and place notarizer in your **$PATH**
