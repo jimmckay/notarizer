@@ -19,7 +19,7 @@ FILE will be uploaded to Apple's notary service and stapled on success.
 Options:
 - **-u, --username** [username] (required)  
    The username associated with your developer account
-- **-p, --password** [password] (required)  
+- **-p, --password** [password]  
    The password for the given username. You can use, for eample, @keychain:Notarizer to access a password stored in the login keychain with service name Notarizer.  
    See [App-Specific Passwords](https://support.apple.com/en-us/HT204397) for help.
 - **-i, --itc-provider** [itc_provider_id]  
