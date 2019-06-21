@@ -16,7 +16,9 @@ function usage() {
 	version
 	echo "Notarize a DMG or APP."
 	echo ""
-	echo "Usage: $(basename $0) -u username -p password [options] file"
+	echo "Usage:"
+	echo "$(basename $0) -u username -p password [options] file"
+	echo "$(basename $0) --get-providers -u username"
 	echo "file will be uploaded to Apple's notary service and stapled on success."
 	echo ""
 	echo "Options:"
@@ -30,6 +32,8 @@ function usage() {
 	echo "   An optional cerificate for signing before notarization"
 	echo " -n, --notify"
 	echo "   If present, a dialog will be displayed on completion"
+	echo " --get-providers"
+	echo "   Request a listing of provider shortnames"
 	echo " -h, --help"
 	echo "   Show this message and exit"
 	echo " -v, --version"
@@ -62,11 +66,20 @@ while test "${1:0:1}" = "-"; do
 	-n | --notify)
 		NOTIFY=1
 		shift;;
+	--get-providers)
+		PROVIDERS=1
+		shift;;
 	-*)
 		echo "Unknown option $1. Run with --help for help."
 		exit 1;;
 	esac
 done
+
+if [ $PROVIDERS == 1 ]; then
+	echo "getting providers"
+	"$(xcode-select -p)"/../Applications/Application\ Loader.app/Contents/itms/bin/iTMSTransporter -v off -m provider -u ${USERNAME} -p
+	exit 0
+fi
 
 test -z "$1" && {
 	echo "Not enough arguments. Invoke with --help for help."
