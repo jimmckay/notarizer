@@ -8,6 +8,7 @@
 brew tap jimmckay/homebrew-taps
 brew install notarizer
 ```
+**Or...**
 Download the [Archive](https://github.com/jimmckay/notarizer/archive/v1.0.0.0.zip) and place the notarizer script in your **$PATH**
 
 ### Usage:
