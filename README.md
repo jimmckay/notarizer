@@ -1,11 +1,11 @@
 # Notarizer
 
-**Notarize and Staple App in a zip archive or DMG**
+#### **Notarize and Staple a Mac App in a Zip Archive, Installer Package or DMG**
 
-#### Installation
+### Installation
 Download the [latest version](https://github.com/jimmckay/notarizer/archive/master.zip) and place notarizer in your **$PATH**
 
-#### Usage:
+### Usage:
   **notarizer -u username -p password [options] FILE**  
   **notarizer --get-providers -u username**  
 
@@ -32,7 +32,7 @@ Options:
 - **-v, --version**  
    Print version information and exit
 
-#### Credits
+### Credits
    Written by Jim McKay  
    Copyright 2019  
    
