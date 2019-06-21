@@ -16,10 +16,11 @@ Options:
    The username associated with your developer account
 - **-p, --password** [password] (required)  
    The password for the given username.  
-   Can use @keychain:ITEM to access password stored in login keychain with service name ITEM.  
+   You can use, for eample, @keychain:Notarizer to access a password stored in the login keychain with service name Notarizer.  
    See [App-Specific Passwords](https://support.apple.com/en-us/HT204397) for help.
 - **-i, --itc-provider** [itc_provider_id]  
-   The developer shortname to use (usually your App Store Connect id without spaces or '|'s)
+   The developer shortname to use (usually your App Store Connect id without spaces or '|'s)  
+   See --get-providers for help finding your team shortname.
 - **-s, --sign** [cerificatename]  
    An optional cerificate for codesigning before notarization
 - **-n, --notify**  
