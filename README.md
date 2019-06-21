@@ -31,6 +31,7 @@ Options:
 - **-v, --version**  
    Print version information and exit
 
+#### Credits
    Written by Jim McKay  
    Copyright 2019  
    
