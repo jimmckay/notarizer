@@ -76,7 +76,7 @@ while test "${1:0:1}" = "-"; do
 done
 
 if [ $PROVIDERS == 1 ]; then
-	echo "getting providers"
+	echo "getting providers. Enter your app-specific password when prompted."
 	"$(xcode-select -p)"/../Applications/Application\ Loader.app/Contents/itms/bin/iTMSTransporter -v off -m provider -u ${USERNAME} -p
 	exit 0
 fi
