@@ -2,7 +2,9 @@
 
 #### Notarize and Staple App or DMG
 
-**Usage: notarizer -u username -p password [options] FILE**
+**Usage:**
+  **notarizer -u username -p password [options] FILE**
+  **notarizer --get-providers -u username**
 
 FILE will be uploaded to Apple's notary service and stapled on success.
 
@@ -18,6 +20,8 @@ Options:
    An optional cerificate for codesigning before notarization
 - **-n, --notify**
    If present, a dialog will be displayed on completion
+- **--get-providers**
+   Request a listing of provider shortnames
 - **-h, --help**
    Show this message and exit
 - **-v, --version**
