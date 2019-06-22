@@ -42,6 +42,5 @@ Options:
    Written by Jim McKay  
    Copyright 2019  
    
-   With some ideas from [Thom McGrath's Code](https://github.com/thommcgrath/Beacon/blob/master/Installers/Mac/Build.sh "Thom McGrath's Code")
-
-
+   With some ideas from [Thom McGrath's Code](https://github.com/thommcgrath/Beacon/blob/master/Installers/Mac/Build.sh "Thom McGrath's Code")  
+   Bash Scripting style garnered from [create-dmg](https://github.com/andreyvit/create-dmg)
