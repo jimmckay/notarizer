@@ -3,7 +3,7 @@
 #### **Notarize and Staple a Mac App in a Zip Archive, Installer Package or DMG**
 
 ### Installation
-**With Homebrew**  
+**With [Homebrew](https://brew.sh)**  
 ```
 brew tap jimmckay/homebrew-taps
 brew install notarizer
