@@ -95,7 +95,7 @@ file_path="$1"
 
 if ! test -z "$certificate"; then
 	echo "Codesigning ${file_path}"
-	codesign --options runtime -s "${certificate}" "${file_path}"
+	codesign --timestamp --options runtime -s "${certificate}" "${file_path}"
 	codesign -vvv "${file_path}"
 fi
 
