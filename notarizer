@@ -124,7 +124,7 @@ fi
 	echo -n "Waiting..."
 
 while true; do
-	progress=$(xcrun altool --notarization-info "${req_uuid}"  --username "${username}" --password "${password}"${itc_string} 2>&1 | grep Status: | awk '{print $2}')
+	progress=$(xcrun altool --notarization-info "${req_uuid}"  --username "${username}" --password "${password}" 2>&1 | grep Status: | awk '{print $2}')
 	case $progress in
 		
 		success)
