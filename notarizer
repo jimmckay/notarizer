@@ -110,7 +110,7 @@ fi
 bundle_id=$(uuidgen)
 
 upload_response=$(xcrun altool --notarize-app --primary-bundle-id "${bundle_id}" --username "${username}" --password "${password}" --file "${file_path}"${itc_string} 2>&1)
-#echo "${upload_response}"
+echo "${upload_response}"
 
 req_uuid=$(echo "${upload_response}" | awk '/RequestUUID/{print $3}')
 
