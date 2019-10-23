@@ -95,8 +95,9 @@ file_path="$1"
 
 if ! test -z "$certificate"; then
 	echo "Codesigning ${file_path}"
-	codesign --timestamp --options runtime -s "${certificate}" "${file_path}"
+	if codesign --timestamp --options runtime -s "${certificate}" "${file_path}"; then
 	codesign -vvv "${file_path}"
+	fi
 fi
 
 echo "Uploading to notarization service (this could take some time)"
@@ -109,8 +110,14 @@ fi
 
 bundle_id=$(uuidgen)
 
-upload_response=$(xcrun altool --notarize-app --primary-bundle-id "${bundle_id}" --username "${username}" --password "${password}" --file "${file_path}"${itc_string} 2>&1)
-echo "${upload_response}"
+upload_command="xcrun altool --notarize-app --primary-bundle-id ${bundle_id} --username ${username} --password ${password} --file ${file_path}${itc_string} 2>&1"
+echo
+echo $upload_command
+echo
+
+if ! upload_response=$($upload_command) ;then
+	echo "${upload_response}"
+fi
 
 req_uuid=$(echo "${upload_response}" | awk '/RequestUUID/{print $3}')
 
