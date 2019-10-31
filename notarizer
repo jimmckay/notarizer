@@ -151,7 +151,7 @@ while true; do
 			fi
 			break
 			;;			
-		in)  #in progress
+		in|"")  #in progress
 			echo -n "..."
 			;;
 		*)
