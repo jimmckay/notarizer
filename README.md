@@ -1,4 +1,4 @@
-# Notarizer 1.0.0.4
+# Notarizer 1.0.0.6
 
 #### **Notarize and Staple a Mac App in a Zip Archive, Installer Package or DMG**
 
@@ -9,7 +9,7 @@ brew tap jimmckay/homebrew-taps
 brew install notarizer
 ```
 **Or...**
-Download the [Archive](https://github.com/jimmckay/notarizer/archive/v1.0.0.4.zip) and place the notarizer script in your **$PATH**
+Download the [Archive](https://github.com/jimmckay/notarizer/archive/v1.0.0.6.zip) and place the notarizer script in your **$PATH**
 
 ### Usage:
   **notarizer -u username -p password [options] FILE**  
