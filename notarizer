@@ -82,7 +82,14 @@ done
 
 if [ $providers == 1 ]; then
 	echo "getting providers. Enter your app-specific password when prompted."
-	"$(xcode-select -p)"/../Applications/Application\ Loader.app/Contents/itms/bin/iTMSTransporter -v off -m provider -u ${username} -p
+	transporter="$(xcode-select -p)/../Applications/Application Loader.app/Contents/itms/bin/iTMSTransporter"
+	[ ! -e "$transporter" ] && transporter="/Applications/Application Loader.app/Contents/MacOS/itms/bin/iTMSTransporter"
+	[ ! -e "$transporter" ] && transporter="/System/Applications/Application Loader.app/Contents/MacOS/itms/bin/iTMSTransporter"
+	if [ ! -e "$transporter" ]; then
+		echo "Application Loader not found."
+	exit 1
+	fi	
+	"$transporter" -v off -m provider -u ${username} -p
 	exit 0
 fi
 
